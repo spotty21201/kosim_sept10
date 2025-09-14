@@ -5,7 +5,13 @@ import { storeToScenario } from '@/lib/calc/adapter';
 import { computeResults } from '@/lib/calc/metrics';
 
 export async function generateProjectPDF(store: WizardStore) {
-  const doc = new jsPDF();\n  const scn = storeToScenario(store);\n  const { results: financials } = computeResults(scn);\n  const getY = (delta: number = 0) => {\n    const last = (doc as any).lastAutoTable?.finalY;\n    return (typeof last === 'number' ? last : 40) + delta;\n  };
+  const doc = new jsPDF();
+  const scn = storeToScenario(store);
+  const { results: financials } = computeResults(scn);
+  const getY = (delta: number = 0) => {
+    const last = (doc as any).lastAutoTable?.finalY;
+    return (typeof last === 'number' ? last : 40) + delta;
+  };
 
   // Add title
   doc.setFontSize(20);

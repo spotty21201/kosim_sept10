@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useWizardStore } from "@/lib/store/wizard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";

@@ -4,12 +4,14 @@ import { WizardStore } from '@/lib/store/wizard';
 import { storeToScenario } from '@/lib/calc/adapter';
 import { computeResults } from '@/lib/calc/metrics';
 
+type DocWithAutoTable = jsPDF & { lastAutoTable?: { finalY?: number } };
+
 export async function generateProjectPDF(store: WizardStore) {
   const doc = new jsPDF();
   const scn = storeToScenario(store);
   const { results: financials } = computeResults(scn);
   const getY = (delta: number = 0) => {
-    const last = (doc as any).lastAutoTable?.finalY;
+    const last = (doc as DocWithAutoTable).lastAutoTable?.finalY;
     return (typeof last === 'number' ? last : 40) + delta;
   };
 

@@ -2,7 +2,7 @@ import { Scenario, Results } from "@/lib/types";
 import { computeYield } from "@/lib/calc/yield";
 import { revenueAnnual } from "@/lib/calc/revenue";
 import { opexAnnual } from "@/lib/calc/opex";
-import { capexTotal } from "@/lib/calc/capex";
+import { capexTotal, type CapexBreakdown } from "@/lib/calc/capex";
 
 function annualDebtService(principal: number, ratePct: number, years: number): number {
   const r = (ratePct / 100);
@@ -12,11 +12,13 @@ function annualDebtService(principal: number, ratePct: number, years: number): n
   return annuity;
 }
 
-export function computeResults(scn: Scenario): { results: Results; context: any } {
+type ResultsContext = { yield: ReturnType<typeof computeYield>; capex: CapexBreakdown };
+
+export function computeResults(scn: Scenario): { results: Results; context: ResultsContext } {
   const y = computeYield(scn);
   // opex preview without marketing pct
   let opexA = opexAnnual(scn, { usableGrossArea: y.usableGross, roomsTotal: y.roomsTotal });
-  let revA = revenueAnnual(scn, y.rooms);
+  const revA = revenueAnnual(scn, y.rooms);
   // add marketing pct if applicable
   if (scn.opex.marketing.method === 'pctRevenue') {
     opexA += (scn.opex.marketing.pct ?? 0) / 100 * revA;
@@ -61,4 +63,3 @@ export function computeResults(scn: Scenario): { results: Results; context: any 
 
   return { results, context: { yield: y, capex: capx } };
 }
-

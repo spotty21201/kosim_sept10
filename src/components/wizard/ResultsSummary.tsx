@@ -1,6 +1,6 @@
 "use client";
 
-import { useWizardStore } from "@/lib/store/wizard";
+import { useWizardStore, type WizardStore as StoreType } from "@/lib/store/wizard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -13,14 +13,14 @@ import { generateRoiVsRooms } from "@/lib/calc/roiCurve";
 import { RoiVsRooms } from "@/components/charts/RoiVsRooms";
 
 export function ResultsSummary() {
-  const { siteArea, kdb, klb, floors, parkingSpots, roomModules, capex, opex, occupancyRatePercent } = useWizardStore();
+  const { siteArea, kdb, floors, roomModules, occupancyRatePercent } = useWizardStore();
 
-  const scenario = storeToScenario((useWizardStore as any).getState?.());
+  const scenario = storeToScenario(useWizardStore.getState?.() as StoreType);
   const { results } = computeResults(scenario);
   const roiCurve = generateRoiVsRooms(scenario);
 
   const handleDownloadPdf = async () => {
-    const fullStore = (useWizardStore as any).getState?.() || {};
+    const fullStore = useWizardStore.getState?.() as StoreType;
     const doc = await generateProjectPDF(fullStore);
     doc.save(`KoSim-Report-${new Date().toISOString().split('T')[0]}.pdf`);
   };

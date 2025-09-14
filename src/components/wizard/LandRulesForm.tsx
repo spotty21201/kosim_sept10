@@ -21,7 +21,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { validateLandRules, validateRumahKosConstraints } from "@/lib/validations/land-rules";
 import { useState, useEffect } from "react";
-import { AlertCircle, AlertTriangle } from "lucide-react";
+// Icons can be reintroduced when needed
 import { ValidationMessage } from "@/components/ui/validation-message";
 import { ParkingAccessibilityForm } from "./ParkingAccessibilityForm";
 import { ParkingSummary } from "./ParkingSummary";
@@ -37,20 +37,14 @@ interface ValidationState {
 
 import { CityCode, CITY_REGULATIONS } from "@/lib/config/city-regulations";
 
-type ParkingCalcResult = {
-  baseSpots: number;
-  reducedSpots: number;
-  finalSpots: number;
-  reductions: { source: string; amount: number }[];
-  adjustments: { source: string; amount: number }[];
-};
+// type ParkingCalcResult retained via calculateParkingRequirement
 
 export function LandRulesForm() {
   const { siteArea, kdb, klb, floors, corridorType, parkingSpots, roomModules, updateLandRules, updateRoomModules, updateCosts, setTotalRoomsTarget } =
     useWizardStore();
   
   const [selectedCity, setSelectedCity] = useState<CityCode>('default');
-  const [transport, setTransport] = useState<TransportAccessibility>({
+  const [, setTransport] = useState<TransportAccessibility>({
     mrt: false,
     lrt: false,
     busway: false,
@@ -58,7 +52,7 @@ export function LandRulesForm() {
     busStop: false,
     distance: 1000,
   });
-  const [areaType, setAreaType] = useState<AreaType>("residential");
+  const [, setAreaType] = useState<AreaType>("residential");
   const [parkingCalc, setParkingCalc] = useState<{
     baseSpots: number;
     reducedSpots: number;
@@ -109,8 +103,8 @@ export function LandRulesForm() {
               });
               if (patch.roomModules) updateRoomModules(patch.roomModules);
               if (patch.capex && patch.opex) updateCosts({ capex: patch.capex, opex: patch.opex });
-              if (typeof (patch as any).occupancyRatePercent === 'number') {
-                (useWizardStore as any).setState({ occupancyRatePercent: (patch as any).occupancyRatePercent });
+              if (typeof patch.occupancyRatePercent === 'number') {
+                useWizardStore.setState({ occupancyRatePercent: patch.occupancyRatePercent });
               }
               if (typeof patch.totalRoomsTarget === 'number') setTotalRoomsTarget(patch.totalRoomsTarget);
             }}
@@ -132,8 +126,8 @@ export function LandRulesForm() {
               });
               if (patch.roomModules) updateRoomModules(patch.roomModules);
               if (patch.capex && patch.opex) updateCosts({ capex: patch.capex, opex: patch.opex });
-              if (typeof (patch as any).occupancyRatePercent === 'number') {
-                (useWizardStore as any).setState({ occupancyRatePercent: (patch as any).occupancyRatePercent });
+              if (typeof patch.occupancyRatePercent === 'number') {
+                useWizardStore.setState({ occupancyRatePercent: patch.occupancyRatePercent });
               }
               if (typeof patch.totalRoomsTarget === 'number') setTotalRoomsTarget(patch.totalRoomsTarget);
             }}
@@ -147,7 +141,7 @@ export function LandRulesForm() {
       <Card>
         <CardHeader>
           <CardTitle>Location</CardTitle>
-          <CardDescription>Select your project's city for specific regulations</CardDescription>
+          <CardDescription>Select your project&apos;s city for specific regulations</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -352,7 +346,7 @@ export function LandRulesForm() {
             setParkingCalc(result);
             updateLandRules({ parkingSpots: result.finalSpots });
           } else {
-            const ratio = (cityRules as any).parkingRatio ?? 0;
+            const ratio = cityRules.parkingRatio ?? 0;
             const fallbackSpots = Math.max(1, Math.ceil(roomCount * ratio));
             setParkingCalc(null);
             updateLandRules({ parkingSpots: fallbackSpots });

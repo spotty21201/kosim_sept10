@@ -15,7 +15,6 @@ export function capexTotal(
   {
     usableGrossArea,
     efficiency,
-    roomsTotal,
     opexAnnualValue,
   }: { usableGrossArea: number; efficiency: number; roomsTotal: number; opexAnnualValue: number }
 ): CapexBreakdown {
@@ -32,4 +31,3 @@ export function capexTotal(
   const total = land + structure + shared + fitout + branding + workingCapital;
   return { land, structure, shared, fitout, branding, workingCapital, total };
 }
-

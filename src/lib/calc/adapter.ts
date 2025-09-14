@@ -3,7 +3,6 @@ import { useWizardStore, type WizardStore as StoreType } from "@/lib/store/wizar
 import { deriveEfficiency } from "@/lib/calc/efficiency";
 import { computeYield } from "@/lib/calc/yield";
 import { opexAnnual } from "@/lib/calc/opex";
-import { capexTotal } from "@/lib/calc/capex";
 import { revenueAnnual } from "@/lib/calc/revenue";
 
 export function storeToScenario(store: StoreType): Scenario {
@@ -73,7 +72,7 @@ export function storeToScenario(store: StoreType): Scenario {
 
 // convenience to fetch current state in client components
 export function getCurrentScenario(): Scenario {
-  const store = (useWizardStore as any).getState?.() as StoreType;
+  const store = useWizardStore.getState?.() as StoreType;
   return storeToScenario(store);
 }
 
@@ -81,12 +80,12 @@ export function scenarioToStore(scn: Scenario): Partial<StoreType> {
   const y = computeYield(scn);
   const ug = y.usableGross;
   const sharedArea = ug * (1 - scn.efficiency);
-  let opexA = opexAnnual(scn, { usableGrossArea: ug, roomsTotal: y.roomsTotal });
+  const opexA = opexAnnual(scn, { usableGrossArea: ug, roomsTotal: y.roomsTotal });
   const revA = revenueAnnual(scn, y.rooms);
   if (scn.opex.marketing.method === 'pctRevenue') {
     // included via later metrics; we use monthlyMarketing below
   }
-  const capx = capexTotal(scn, { usableGrossArea: ug, efficiency: scn.efficiency, roomsTotal: y.roomsTotal, opexAnnualValue: opexA });
+  // Note: capex breakdown not needed for store mapping here
 
   const monthlyRevenue = revA / 12;
   const monthlyMarketing = scn.opex.marketing.method === 'pctRevenue'
@@ -100,7 +99,14 @@ export function scenarioToStore(scn: Scenario): Partial<StoreType> {
     floors: scn.floors,
     corridorType: scn.corridor,
     parkingSpots: 0,
-    roomModules: scn.rooms.map(r => ({ type: r.type as any, size: r.size, rent: r.rent, fitout: r.fitout, count: r.count || 0, mix: r.sharePct ?? 0 })),
+    roomModules: scn.rooms.map(r => ({
+      type: r.type as StoreType['roomModules'][number]['type'],
+      size: r.size,
+      rent: r.rent,
+      fitout: r.fitout,
+      count: r.count || 0,
+      mix: r.sharePct ?? 0,
+    })),
     totalRoomsTarget: y.roomsTotal,
     capex: {
       landCost: scn.capex.land.method === 'own' ? (scn.capex.land.rpPerSqm ?? 0) * scn.siteArea : (scn.capex.land.flat ?? 0),

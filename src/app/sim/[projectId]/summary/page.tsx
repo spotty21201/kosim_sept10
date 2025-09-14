@@ -3,7 +3,8 @@
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { useWizardStore } from "@/lib/store/wizard";
+import { useWizardStore, type WizardStore as StoreType } from "@/lib/store/wizard";
+import type { Scenario, RoomModule as ScenarioRoomModule } from "@/lib/types";
 import { ExportButton } from "@/components/ui/export-button";
 import { Button } from "@/components/ui/button";
 import { generateProjectPDF } from "@/lib/exports/pdf-export";
@@ -20,45 +21,69 @@ export default function SummaryPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const q = useSearchParams();
   const isPublic = (q.get("view") || "").toLowerCase() === "public";
-  const store = (useWizardStore as any).getState?.();
 
-  if (!store) {
-    if (typeof window !== "undefined") router.replace(`/sim/${projectId}`);
-    return null;
-  }
-
-  const onPdf = async () => {
-    const doc = await generateProjectPDF(store);
-    doc.save(`KoSim-Report-${new Date().toISOString().split('T')[0]}.pdf`);
-  };
-
-  const onShare = async () => {
-    const url = window.location.href.replace(/[#?].*$/, "") + "?view=public";
-    try { await navigator.clipboard.writeText(url); } catch {}
-  };
-
+  // Top-level state/effects only
   const [stamp, setStamp] = useState("");
   useEffect(() => {
     setStamp(new Date().toLocaleString());
   }, []);
 
+  // Access current store safely (client)
+  const store: StoreType | undefined = useWizardStore.getState?.();
+
+  // Redirect away if no store is available
+  useEffect(() => {
+    if (!store) router.replace(`/sim/${projectId}`);
+  }, [projectId, router, store]);
+
   // Build scenario + results and derived stats
-  const scenario = useMemo(() => storeToScenario(store), [store]);
-  const { results } = useMemo(() => computeResults(scenario), [scenario]);
-  const roiCurve = useMemo(() => generateRoiVsRooms(scenario), [scenario]);
+  const scenario: Scenario | null = useMemo(() => (store ? storeToScenario(store) : null), [store]);
+  const results = useMemo(() => (scenario ? computeResults(scenario).results : null), [scenario]);
+  const roiCurve = useMemo(() => (scenario ? generateRoiVsRooms(scenario) : []), [scenario]);
+
+  if (!scenario || !results) {
+    return <div className="p-6">Loading…</div>;
+  }
+
   const footprint = scenario.siteArea * scenario.kdb;
   const gfa = footprint * scenario.floors;
   const nla = gfa * scenario.efficiency;
-  const totalRooms = scenario.rooms.reduce((a: number, r: any) => a + (r.count ?? 0), 0);
-  const avgRoomSz = totalRooms ? scenario.rooms.reduce((a: number, r: any) => a + r.size * (r.count ?? 0), 0) / totalRooms : 0;
+  const totalRooms = scenario.rooms.reduce((a: number, r: ScenarioRoomModule) => a + (r.count ?? 0), 0);
+  const avgRoomSz = totalRooms
+    ? scenario.rooms.reduce((a: number, r: ScenarioRoomModule) => a + r.size * (r.count ?? 0), 0) / totalRooms
+    : 0;
   const fmtNum = (n: number) => new Intl.NumberFormat("id-ID").format(Math.round(n || 0));
 
   return (
     <div className={`max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6 ${isPublic ? 'public-watermark' : ''}`}>
       <div className="actions sticky top-0 z-10 flex items-center justify-end gap-2 bg-white border-b border-slate-200 py-2 px-4 no-print" role="toolbar" aria-label="Summary actions">
         <ExportButton />
-        <Button variant="outline" size="sm" onClick={onPdf} disabled={isPublic} aria-label="Export PDF">Export PDF</Button>
-        <Button variant="outline" size="sm" onClick={onShare} aria-label="Share Link">Share Link</Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            if (!store) return;
+            const doc = await generateProjectPDF(store);
+            doc.save(`KoSim-Report-${new Date().toISOString().split('T')[0]}.pdf`);
+          }}
+          disabled={isPublic}
+          aria-label="Export PDF"
+        >
+          Export PDF
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            const url = window.location.href.replace(/[#?].*$/, "") + "?view=public";
+            try {
+              await navigator.clipboard.writeText(url);
+            } catch {}
+          }}
+          aria-label="Share Link"
+        >
+          Share Link
+        </Button>
         <Button variant="outline" size="sm" onClick={() => router.push('/wizard')} disabled={isPublic} aria-label="Back to Edit">Back to Edit</Button>
       </div>
 
@@ -149,7 +174,7 @@ export default function SummaryPage() {
                 </tr>
               </thead>
               <tbody>
-                {scenario.rooms.map((r: any, i: number) => (
+                {scenario.rooms.map((r: ScenarioRoomModule, i: number) => (
                   <tr key={i} className="border-t">
                     <td className="py-2 capitalize">{r.type}</td>
                     <td className="text-right">{fmtNum(r.count ?? 0)}</td>

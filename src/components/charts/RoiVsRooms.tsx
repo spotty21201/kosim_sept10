@@ -13,7 +13,9 @@ import {
   CartesianGrid,
 } from "recharts";
 
-export function RoiVsRooms({ data, currentRooms }: { data: { rooms: number; roi: number }[]; currentRooms: number }) {
+type RoiPoint = { rooms: number; roi: number };
+
+export function RoiVsRooms({ data, currentRooms }: { data: RoiPoint[]; currentRooms: number }) {
   const maxPoint = data && data.length
     ? data.reduce((a, b) => (b.roi > a.roi ? b : a), data[0])
     : { rooms: 0, roi: 0 };
@@ -28,11 +30,11 @@ export function RoiVsRooms({ data, currentRooms }: { data: { rooms: number; roi:
             label={{ value: "Rooms", position: "insideBottom", dy: 12 }}
           />
           <YAxis
-            tickFormatter={(v: number) => `${Number(v).toFixed(0)}%`}
+            tickFormatter={(v: number) => `${(Number(v) * 100).toFixed(0)}%`}
             label={{ value: "ROI (%)", angle: -90, position: "insideLeft" }}
           />
           <Tooltip
-            formatter={(value: any) => [`${Number(value).toFixed(1)}%`, "ROI"]}
+            formatter={(value: number) => [`${(Number(value) * 100).toFixed(1)}%`, "ROI"]}
             labelFormatter={(label) => `Rooms: ${label}`}
           />
           <Legend verticalAlign="top" />

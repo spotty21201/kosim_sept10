@@ -95,7 +95,7 @@ export const validateLandRules = (data: Partial<LandRulesFormData>, cityCode: Ci
       return { isValid: false, errors };
     }
     return { isValid: true, errors: {} };
-  } catch (error) {
+  } catch {
     return {
       isValid: false,
       errors: { general: "Invalid input data" },

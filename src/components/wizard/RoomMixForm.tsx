@@ -37,7 +37,7 @@ export function RoomMixForm() {
     setLocalRooms(localRooms.filter((_, i) => i !== index));
   };
 
-  const updateRoom = (index: number, field: keyof RoomModule, value: any) => {
+  const updateRoom = <T extends keyof RoomModule>(index: number, field: T, value: RoomModule[T]) => {
     const updatedRooms = localRooms.map((room, i) => {
       if (i === index) {
         return { ...room, [field]: value };

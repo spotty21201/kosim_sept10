@@ -40,36 +40,42 @@ export const landRulesSchema = (cityCode: CityCode = 'default') => {
       .max(
         cityRules.maxFloors,
         `Maximum ${cityRules.maxFloors} floors allowed in ${cityRules.name}`
-      )
-      .refine((val, ctx) => {
-        const klb = (ctx.parent as any).klb;
-        const kdb = (ctx.parent as any).kdb / 100;
-        return val <= Math.ceil(klb / kdb);
-      }, {
-        message: "Number of floors cannot exceed KLB/KDB ratio",
-      }),
+      ),
     
     corridorType: z.enum(["central", "external"]),
     
     parkingSpots: z
       .number()
       .int("Number of parking spots must be a whole number")
-      .min(0, "Parking spots cannot be negative")
-      .refine((val, ctx) => {
-        const siteArea = (ctx.parent as any).siteArea;
-        const kdb = (ctx.parent as any).kdb / 100;
-        // Calculate available open space considering setbacks
-        const openSpace = siteArea * (1 - kdb);
-        const setbackArea = 
-          2 * (cityRules.setbacks.front + cityRules.setbacks.back) +
-          2 * (cityRules.setbacks.side + cityRules.setbacks.side);
-        const usableOpenSpace = Math.max(0, openSpace - setbackArea);
-        // Each parking spot needs 12.5m² (2.5m × 5m)
-        const maxSpots = Math.floor(usableOpenSpace / 12.5);
-        return val <= maxSpots;
-      }, {
+      .min(0, "Parking spots cannot be negative"),
+  })
+  .superRefine((data, ctx) => {
+    // Floors vs KLB/KDB
+    const kdbRatio = (data.kdb ?? 0) / 100;
+    if (kdbRatio > 0) {
+      const maxFloorsByRatio = Math.ceil((data.klb ?? 0) / kdbRatio);
+      if ((data.floors ?? 0) > maxFloorsByRatio) {
+        ctx.addIssue({
+          path: ["floors"],
+          code: z.ZodIssueCode.custom,
+          message: "Number of floors cannot exceed KLB/KDB ratio",
+        });
+      }
+    }
+
+    // Parking spots space check
+    const openSpace = (data.siteArea ?? 0) * (1 - kdbRatio);
+    const setbackArea = 2 * (cityRules.setbacks.front + cityRules.setbacks.back)
+      + 2 * (cityRules.setbacks.side + cityRules.setbacks.side);
+    const usableOpenSpace = Math.max(0, openSpace - setbackArea);
+    const maxSpots = Math.floor(usableOpenSpace / 12.5);
+    if ((data.parkingSpots ?? 0) > maxSpots) {
+      ctx.addIssue({
+        path: ["parkingSpots"],
+        code: z.ZodIssueCode.custom,
         message: "Not enough open space for this many parking spots considering setbacks",
-      }),
+      });
+    }
   });
 };
 

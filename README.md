@@ -1,4 +1,4 @@
-# KoSim — RumahKost Simulator (MVP)
+# Pak KoSim — RumahKos Simulator (MVP)
 
 **Predictive design & financial modeling for Rumah Kos (boarding houses) in Indonesia.**
 KoSim helps developers, Bapak-Ibu Kos, and investors turn **land, building modules, and operations** into clear outputs: **room yield, ROI, payback timeline, and sensitivity analysis**.

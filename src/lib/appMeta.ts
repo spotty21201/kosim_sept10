@@ -1,4 +1,4 @@
-export const APP_NAME = "KoSim — Kos Simulator";
+export const APP_NAME = "Pak KoSim — Kos Simulator";
 
 export const ONE_LINER =
   "Design tool & financial modeling for Rumah Kos. Developed by KOLABS.DESIGN x AIM x HDA";

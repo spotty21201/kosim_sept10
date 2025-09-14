@@ -24,14 +24,21 @@ export default function AppHeader() {
 
         {/* Right: Brand mark */}
         <div className="shrink-0 pt-1">
-          <Image
-            src="/kolabs-logo-black.png"
-            alt="KOLABS.DESIGN"
-            width={138}
-            height={28}
-            priority
-            className="opacity-90"
-          />
+          <a
+            href="https://www.kolabs.design"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit KOLABS.DESIGN"
+          >
+            <Image
+              src="/kolabs-logo-black.png"
+              alt="KOLABS.DESIGN"
+              width={138}
+              height={28}
+              priority
+              className="opacity-90 hover:opacity-100 transition-opacity"
+            />
+          </a>
         </div>
       </div>
     </header>

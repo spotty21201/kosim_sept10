@@ -5,9 +5,7 @@ import { storeToScenario } from '@/lib/calc/adapter';
 import { computeResults } from '@/lib/calc/metrics';
 
 export async function generateProjectPDF(store: WizardStore) {
-  const doc = new jsPDF();
-  const scn = storeToScenario(store);
-  const { results: financials } = computeResults(scn);
+  const doc = new jsPDF();\n  const scn = storeToScenario(store);\n  const { results: financials } = computeResults(scn);\n  const getY = (delta: number = 0) => {\n    const last = (doc as any).lastAutoTable?.finalY;\n    return (typeof last === 'number' ? last : 40) + delta;\n  };
 
   // Add title
   doc.setFontSize(20);
@@ -34,7 +32,7 @@ export async function generateProjectPDF(store: WizardStore) {
 
   // Add financial metrics
   doc.setFontSize(16);
-  doc.text('Financial Analysis', 20, doc.lastAutoTable.finalY + 20);
+  doc.text('Financial Analysis', 20, getY(20));
 
   const metrics = [
     ['Total Investment (CAPEX)', `Rp ${financials.capex.toLocaleString()}`],
@@ -46,14 +44,14 @@ export async function generateProjectPDF(store: WizardStore) {
   ];
 
   autoTable(doc, {
-    startY: doc.lastAutoTable.finalY + 30,
+    startY: getY(30),
     head: [['Metric', 'Value']],
     body: metrics,
   });
 
   // Add room distribution
   doc.setFontSize(16);
-  doc.text('Room Distribution', 20, doc.lastAutoTable.finalY + 20);
+  doc.text('Room Distribution', 20, getY(20));
 
   const roomDistribution = store.roomModules.map(room => [
     room.type,
@@ -64,14 +62,14 @@ export async function generateProjectPDF(store: WizardStore) {
   ]);
 
   autoTable(doc, {
-    startY: doc.lastAutoTable.finalY + 30,
+    startY: getY(30),
     head: [['Type', 'Size', 'Rent', 'Fitout Cost', 'Count']],
     body: roomDistribution,
   });
 
   // Add operating costs breakdown
   doc.setFontSize(16);
-  doc.text('Operating Costs', 20, doc.lastAutoTable.finalY + 20);
+  doc.text('Operating Costs', 20, getY(20));
 
   const opex = [
     ['Caretaker Salary', `Rp ${store.opex.caretakerSalary.toLocaleString()}`],
@@ -84,7 +82,7 @@ export async function generateProjectPDF(store: WizardStore) {
   ];
 
   autoTable(doc, {
-    startY: doc.lastAutoTable.finalY + 30,
+    startY: getY(30),
     head: [['Cost Item', 'Monthly Amount']],
     body: opex,
   });

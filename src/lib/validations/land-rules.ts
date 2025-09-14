@@ -86,13 +86,13 @@ export const validateLandRules = (data: Partial<LandRulesFormData>, cityCode: Ci
     const schema = landRulesSchema(cityCode);
     const result = schema.safeParse(data);
     if (!result.success) {
-      return {
-        isValid: false,
-        errors: result.error.errors.reduce((acc: Record<string, string>, err) => {
-          acc[err.path[0].toString()] = err.message;
-          return acc;
-        }, {}),
-      };
+      const issues = (result.error as z.ZodError).issues ?? [];
+      const errors = issues.reduce((acc: Record<string, string>, issue) => {
+        const key = (issue.path?.[0] ?? 'general').toString();
+        acc[key] = issue.message;
+        return acc;
+      }, {});
+      return { isValid: false, errors };
     }
     return { isValid: true, errors: {} };
   } catch (error) {

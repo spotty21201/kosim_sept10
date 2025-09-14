@@ -38,7 +38,8 @@ export type CityRegulation = {
   klbRange: { min: number; max: number };
   maxFloors: number;
   minSiteArea: number;
-  parkingRequirements: ParkingRequirement;
+  parkingRequirements?: ParkingRequirement;
+  parkingRatio?: number;
   setbacks: {
     front: number;
     side: number;

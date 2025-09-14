@@ -342,16 +342,21 @@ export function LandRulesForm() {
           const cityRules = CITY_REGULATIONS[selectedCity];
           const roomCount = Math.floor((siteArea * (klb || 0)) / 20); // Assuming average room size of 20m²
           
-          const result = calculateParkingRequirement(
-            roomCount,
-            cityRules.parkingRequirements,
-            newTransport,
-            newAreaType
-          );
-          
-          setParkingCalc(result);
-          // Update parking spots based on calculation
-          updateLandRules({ parkingSpots: result.finalSpots });
+          if (cityRules.parkingRequirements) {
+            const result = calculateParkingRequirement(
+              roomCount,
+              cityRules.parkingRequirements,
+              newTransport,
+              newAreaType
+            );
+            setParkingCalc(result);
+            updateLandRules({ parkingSpots: result.finalSpots });
+          } else {
+            const ratio = (cityRules as any).parkingRatio ?? 0;
+            const fallbackSpots = Math.max(1, Math.ceil(roomCount * ratio));
+            setParkingCalc(null);
+            updateLandRules({ parkingSpots: fallbackSpots });
+          }
         }}
       />
 

@@ -13,7 +13,7 @@ import { generateRoiVsRooms } from "@/lib/calc/roiCurve";
 import { RoiVsRooms } from "@/components/charts/RoiVsRooms";
 
 export function ResultsSummary() {
-  const { siteArea, kdb, floors, roomModules, occupancyRatePercent } = useWizardStore();
+  const { siteArea, kdb, floors, parkingSpots, roomModules, occupancyRatePercent } = useWizardStore();
 
   const scenario = storeToScenario(useWizardStore.getState?.() as StoreType);
   const { results } = computeResults(scenario);

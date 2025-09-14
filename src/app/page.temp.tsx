@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
-export default async function Page() {
+export default function Home() {
   return (
     <div className="min-h-screen">
       <main className="pt-10 pb-16">
@@ -22,21 +22,21 @@ export default async function Page() {
           </Link>
 
           <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-            <div className="p-6 border rounded-lg bg-card hover:bg-accent/50 transition-colors">
+            <div className="p-6 border rounded-lg">
               <h3 className="text-lg font-semibold mb-2">Land & Rules</h3>
               <p className="text-muted-foreground">
                 Input your site details and check building regulations for your location.
               </p>
             </div>
 
-            <div className="p-6 border rounded-lg bg-card hover:bg-accent/50 transition-colors">
+            <div className="p-6 border rounded-lg">
               <h3 className="text-lg font-semibold mb-2">Room Planning</h3>
               <p className="text-muted-foreground">
                 Design your room mix and optimize space utilization.
               </p>
             </div>
 
-            <div className="p-6 border rounded-lg bg-card hover:bg-accent/50 transition-colors">
+            <div className="p-6 border rounded-lg">
               <h3 className="text-lg font-semibold mb-2">Financial Analysis</h3>
               <p className="text-muted-foreground">
                 Get detailed ROI calculations and investment projections.
